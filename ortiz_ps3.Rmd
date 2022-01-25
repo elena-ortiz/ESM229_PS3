@@ -1,0 +1,72 @@
+---
+title: "esm229_ps3"
+author: "Elena Ortiz"
+date: "1/25/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(doBy)
+library(plm)
+library(here)
+```
+
+```{r}
+#load in the data
+panel<-read.csv(here("country_year_panel.csv"))
+```
+
+##Part 1 
+###Viz exploration  of data 
+```{r}
+plot(panel$temp, panel$l_yield) #scatter plot 
+abline(lm(panel$l_yield~panel$temp), lwd=3, col="blue") #linear regression line 
+lines(lowess(panel$temp, panel$l_yield, f=.1, iter=0), lwd=3, col="red") #non-para local linear regression line 
+```
+No, doesn't look linear 
+
+##Part 2
+```{r}
+cross <- summaryBy(l_yield+temp ~ cID, FUN=c(mean), data=panel)
+plot(cross$temp, cross$l_yield) #scatter plot 
+abline(lm(cross$l_yield~cross$temp), lwd=3, col="blue") #linear regression line 
+lines(lowess(cross$temp, cross$l_yield, f=.1, iter=0), lwd=3, col="red") #non-para local linear regression line 
+```
+
+```{r}
+lm(cross$l_yield.mean~cross$temp.mean)
+```
+
+```{r}
+plm(l_yield ~ temp, data=panel, index=c("cID", "year"), model="within")
+```
+
+##Part 3
+```{r}
+AFpanel <- subset(panel, panel$continent=="AF",
+select=c(cID, year, l_yield, temp, continent))
+AFlm<-(plm(l_yield ~ temp, data=AFpanel, index=c("cID", "year"), model="within"))
+
+
+ASpanel <- subset(panel, panel$continent=="AS",
+select=c(cID, year, l_yield, temp, continent))
+ASlm<-(plm(l_yield ~ temp, data=ASpanel, index=c("cID", "year"), model="within"))
+
+EUpanel <- subset(panel, panel$continent=="EU",
+select=c(cID, year, l_yield, temp, continent))
+EUlm<-(plm(l_yield ~ temp, data=EUpanel, index=c("cID", "year"), model="within"))
+
+OCpanel <- subset(panel, panel$continent=="OC",
+select=c(cID, year, l_yield, temp, continent))
+OClm<-(plm(l_yield ~ temp, data=OCpanel, index=c("cID", "year"), model="within"))
+
+SApanel <- subset(panel, panel$continent=="SA",
+select=c(cID, year, l_yield, temp, continent))
+SAlm<-(plm(l_yield ~ temp, data=SApanel, index=c("cID", "year"), model="within"))
+
+NAmpanel <- subset(panel, panel$continent=="NM",
+select=c(cID, year, l_yield, temp, continent))
+NAmlm<-(plm(l_yield ~ temp, data=NAmpanel, index=c("cID", "year"), model="within"))
+```
+
